@@ -299,7 +299,7 @@
                 "scroll_lock": { "$ref": "qmk.definitions.v1#/mcu_pin" },
                 "compose": { "$ref": "qmk.definitions.v1#/mcu_pin" },
                 "kana": { "$ref": "qmk.definitions.v1#/mcu_pin" },
-                "on_state": { "$ref": "qmk.definitions.v1#/mcu_pin" }
+                "on_state": { "$ref": "qmk.definitions.v1#/bit" }
             }
         },
         "keycodes": { "$ref": "qmk.definitions.v1#/keycode_decl_array" },
