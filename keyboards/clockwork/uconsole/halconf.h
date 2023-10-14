@@ -6,4 +6,9 @@
 
 #define HAL_USE_PAL TRUE
 
+// This enables interrupt-driven mode
+#ifdef TRACKBALL_ENABLE
+#    define PAL_USE_CALLBACKS TRUE
+#endif
+
 #include_next <halconf.h>

@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-
-// Enums for keycodes and layers
-enum uconsole_layers {
-    _DEF = 0,
-    _FN,
-};
+#include "modifiers.h"
+#ifdef POINTING_DEVICE_ENABLE
+#    include "trackball.h"
+#endif
 
 /*
  *              ┌───────┐         ┌───────┐                                       ┌───────┬───────┐
@@ -51,7 +49,7 @@ enum uconsole_layers {
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [_DEF] = LAYOUT_ansi(
+    [_DEF] = LAYOUT(
                     KC_UP,                  KC_BTN1,                                                            JS_3,       JS_2,
         KC_LEFT,    KC_DOWN,    KC_RIGHT,       KC_BTN2,                                                                JS_1,       JS_0,
         KC_ESC,          KC_SLCT,          KC_APP,                      KC_VOLU,    KC_LBRC,   KC_RBRC, KC_SLSH,    KC_MINS,   KC_EQL,   KC_BSLS,
@@ -61,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,         KC_Z,      KC_X,       KC_C,       KC_V,      KC_B,        KC_N,       KC_M,       KC_COMM,    KC_DOT,     KC_RSFT,
             OSL(_FN),       KC_LCTL,    KC_LALT,                            KC_SPC,                     KC_RALT,    KC_RCTL,    OSL(_FN)
     ),
-    [_FN] = LAYOUT_ansi(
+    [_FN] = LAYOUT(
                     _______,                _______,                                                            _______,    _______,
         _______,    _______,    _______,        _______,                                                                _______,    _______,
         _______,         KC_PSCR,          KC_PAUS,                     KC_MUTE,    _______,   _______, _______,    KC_F11,   KC_F12,    _______,
@@ -84,3 +82,15 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     NULL
 };
 // clang-format on
+
+#ifdef POINTING_DEVICE_ENABLE
+layer_state_t layer_state_set_kb(layer_state_t state) {
+    // Switch trackball mode when layer is turned on
+    if (IS_LAYER_ON_STATE(state, _FN)) {
+        trackball_mode_set(TRACKBALL_MODE_SCROLL);
+    } else {
+        trackball_mode_set(TRACKBALL_MODE_MOUSE);
+    }
+    return state;
+}
+#endif

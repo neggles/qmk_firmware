@@ -14,6 +14,7 @@
         "console": true,
         "extrakey": true,
         "mousekey": true,
+        "key_override": true,
         "nkro": false,
         "backlight": true,
         "virtser": true,
@@ -23,7 +24,9 @@
     "matrix_pins": {
         "cols": [ "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7" ],
         "rows": [ "NO_PIN", "NO_PIN", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7" ],
-        "ghost": true
+        "ghost": true,
+        "input_pressed_state": 0,
+        "custom_lite": true
     },
     "usb": {
         "device_version": "1.0.0",
@@ -44,7 +47,7 @@
         "lto": true
     },
     "layouts": {
-        "LAYOUT_ansi": {
+        "LAYOUT": {
             "layout": [
                 { "matrix": [ 0, 0 ], "label": "Up", "x": 1.5, "y": 0, "w": 1 },
                 { "matrix": [ 1, 5 ], "label": "MouseL", "x": 3.75, "y": 0 },
