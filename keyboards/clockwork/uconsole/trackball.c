@@ -1,6 +1,8 @@
+// Copyright 2023 Andi Powers-Holmes (@neggles)
+// SPDX-License-Identifier: GPL-2.0-or-later
+#include "quantum.h"
 #include "trackball.h"
 #include "uconsole.h"
-#include "quantum.h"
 
 #define CONSTRAIN_HID(amt) ((amt) < INT8_MIN ? INT8_MIN : ((amt) > INT8_MAX ? INT8_MAX : (amt)))
 #define CONSTRAIN_HID_XY(amt) ((amt) < XY_REPORT_MIN ? XY_REPORT_MIN : ((amt) > XY_REPORT_MAX ? XY_REPORT_MAX : (amt)))

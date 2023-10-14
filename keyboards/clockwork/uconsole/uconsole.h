@@ -6,11 +6,3 @@
 #ifdef TRACKBALL_ENABLE
 #    include "trackball.h"
 #endif
-
-// Enums for keycodes and layers
-enum uconsole_layers {
-    _DEF = 0,
-    _FN,
-};
-
-#define KEYS_PIN_BY_PIN

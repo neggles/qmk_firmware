@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "modifiers.h"
-#ifdef POINTING_DEVICE_ENABLE
+
+#ifdef TRACKBALL_ENABLE
 #    include "trackball.h"
 #endif
+
+enum uconsole_layers {
+    _DEF = 0,
+    _FN,
+};
 
 /*
  *              ┌───────┐         ┌───────┐                                       ┌───────┬───────┐
@@ -71,19 +76,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 // clang-format on
-
 // Override volume up to be volume down when shift is held
+#ifdef KEY_OVERRIDE_ENABLE
 const key_override_t vol_up_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_VOLD);
 
-// Assign overrides (null-terminated array of pointers!)
 // clang-format off
 const key_override_t **key_overrides = (const key_override_t *[]){
     &vol_up_override,
     NULL
 };
 // clang-format on
+#endif
 
-#ifdef POINTING_DEVICE_ENABLE
+#ifdef TRACKBALL_ENABLE
 layer_state_t layer_state_set_kb(layer_state_t state) {
     // Switch trackball mode when layer is turned on
     if (IS_LAYER_ON_STATE(state, _FN)) {
