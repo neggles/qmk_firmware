@@ -4,21 +4,21 @@
     "title": "Keymap Information",
     "type": "object",
     "properties": {
-        "author": {"type": "string"},
+        "author": { "type": "string" },
         "converter": {
             "type": "string",
             "minLength": 1,
             "pattern": "^[a-z][0-9a-z_]*$"
         },
-        "host_language": {"$ref": "qmk.definitions.v1#/text_identifier"},
-        "keyboard": {"$ref": "qmk.definitions.v1#/text_identifier"},
-        "keymap": {"$ref": "qmk.definitions.v1#/text_identifier"},
-        "layout": {"$ref": "qmk.definitions.v1#/layout_macro"},
+        "host_language": { "$ref": "qmk.definitions.v1#/text_identifier" },
+        "keyboard": { "$ref": "qmk.definitions.v1#/text_identifier" },
+        "keymap": { "$ref": "qmk.definitions.v1#/text_identifier" },
+        "layout": { "$ref": "qmk.definitions.v1#/layout_macro" },
         "layers": {
             "type": "array",
             "items": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": { "type": "string" }
             }
         },
         "encoders": {
@@ -29,8 +29,8 @@
                     "type": "object",
                     "required": ["ccw", "cw"],
                     "properties": {
-                        "ccw": {"type": "string"},
-                        "cw": {"type": "string"}
+                        "ccw": { "type": "string" },
+                        "cw": { "type": "string" }
                     }
                 }
             }
@@ -50,7 +50,13 @@
                             "properties": {
                                 "action": {
                                     "type": "string",
-                                    "enum": ["beep", "delay", "down", "tap", "up"]
+                                    "enum": [
+                                        "beep",
+                                        "delay",
+                                        "down",
+                                        "tap",
+                                        "up"
+                                    ]
                                 },
                                 "keycodes": {
                                     "type": "array",
@@ -67,15 +73,11 @@
                 }
             }
         },
-        "keycodes": {"$ref": "qmk.definitions.v1#/keycode_decl_array"},
-        "config": {"$ref": "qmk.keyboard.v1"},
+        "keycodes": { "$ref": "qmk.definitions.v1#/keycode_decl_array" },
+        "config": { "$ref": "qmk.keyboard.v1" },
         "notes": {
             "type": "string"
         }
     },
-    "required": [
-        "keyboard",
-        "layout",
-        "layers"
-    ]
+    "required": ["keyboard", "layout", "layers"]
 }

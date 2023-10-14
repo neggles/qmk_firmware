@@ -19,11 +19,9 @@
             },
             "additionalProperties": {
                 "type": "object",
-                "required": [
-                    "define"
-                ],
+                "required": ["define"],
                 "properties": {
-                    "define": {"$ref": "#/definitions/define"}
+                    "define": { "$ref": "#/definitions/define" }
                 }
             }
         },
@@ -34,11 +32,9 @@
             },
             "additionalProperties": {
                 "type": "object", // use 'qmk.definitions.v1#/keycode_decl' when problem keycodes are removed
-                "required": [
-                    "key"
-                ],
+                "required": ["key"],
                 "properties": {
-                    "key": {"$ref": "#/definitions/define"},
+                    "key": { "$ref": "#/definitions/define" },
                     "aliases": {
                         "type": "array",
                         "minItems": 1,
