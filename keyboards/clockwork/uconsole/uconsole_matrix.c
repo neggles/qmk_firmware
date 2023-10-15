@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "quantum.h"
 #include <hal_pal.h>
+#include "matrix.h"
+#include "debug.h"
 #include "uconsole.h"
 
 //----------------------------------------------------------
@@ -13,10 +15,12 @@ static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
 static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
 #endif // MATRIX_COL_PINS
 #ifdef MATRIX_KEY_PINS
-static const pin_t key_pins[MATRIX_KEYS] = MATRIX_KEY_PINS;
+static const pin_t key_pins[DIRECT_ROWS][MATRIX_COLS] = MATRIX_KEY_PINS;
 #endif
 
-#define GPIOB_BITMASK PAL_GROUP_MASK(MATRIX_KEYS)
+/* matrix state(1:on, 0:off) */
+extern matrix_row_t raw_matrix[MATRIX_ROWS]; // raw values
+extern matrix_row_t matrix[MATRIX_ROWS];     // debounced values
 
 //----------------------------------------------------------
 // Inlined helpers
@@ -62,15 +66,13 @@ static bool select_row(uint8_t row) {
 static void unselect_row(uint8_t row) {
     pin_t pin = row_pins[row];
     if (pin != NO_PIN) {
-#ifdef MATRIX_UNSELECT_DRIVE_HIGH
-        setPinOutput_writeHigh(pin);
-#else
         setPinInputHigh_atomic(pin);
-#endif
     }
 }
 
 void matrix_init_custom(void) {
+    wait_ms(500);
+
     /* Set up row pins */
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         unselect_row(i);
@@ -78,37 +80,30 @@ void matrix_init_custom(void) {
 
     /* Set up column pins */
     for (uint8_t i = 0; i < MATRIX_COLS; i++) {
-        if (col_pins[i] != NO_PIN) {
-            setPinInputHigh_atomic(col_pins[i]);
+        pin_t pin = col_pins[i];
+        if (pin != NO_PIN) {
+            setPinInputHigh_atomic(pin);
         }
     }
-
     /* Set up direct pins */
-    for (uint8_t i = 0; i < MATRIX_KEYS; i++) {
-        if (key_pins[i] != NO_PIN) {
-            setPinInputHigh_atomic(key_pins[i]);
+    for (uint8_t x = 0; x < DIRECT_ROWS; x++) {
+        for (uint8_t y = 0; y < MATRIX_COLS; y++) {
+            pin_t pin = key_pins[x][y];
+            if (pin != NO_PIN) {
+                dprintf("Setting direct pin %d.%d to input high\n", x, y);
+                setPinInputHigh_atomic(pin);
+            }
         }
     }
 }
 
-static void matrix_read_cols(matrix_row_t current_matrix[], uint8_t current_row) {
+static void matrix_read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {
     // Start with a clear matrix row
-    matrix_row_t row_state = 0;
+    matrix_row_t current_row_value = 0;
 
     if (!select_row(current_row)) {
-        // Row selection failed (direct pin row)
-#ifdef KEYS_PIN_BY_PIN
-        uint8_t      pin_offset  = current_row * MATRIX_COLS;
-        matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
-        for (uint8_t i = pin_offset; i < (pin_offset + MATRIX_COLS); i++, row_shifter <<= 1) {
-            uint8_t pin_state = readMatrixPin(key_pins[i]);
-            row_state |= pin_state ? 0 : row_shifter;
-        }
-#else
-        uint32_t gpio_b = palReadPort(PAL_PORT(key_pins[0])) & GPIOB_BITMASK;
-        gpio_b >>= current_row * MATRIX_COLS;
-        row_state |= ~gpio_b & 0xFF;
-#endif
+        uint8_t row_offset = (current_row * MATRIX_COLS);
+        current_row_value  = ~(uint8_t)((palReadPort(GPIOB) >> row_offset) & 0xff);
     } else {
         // Row selection succeeded
         matrix_output_select_delay();
@@ -118,22 +113,22 @@ static void matrix_read_cols(matrix_row_t current_matrix[], uint8_t current_row)
         for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, row_shifter <<= 1) {
             uint8_t pin_state = readMatrixPin(col_pins[col_index]);
             // Populate the matrix row with the state of the col pin
-            row_state |= pin_state ? 0 : row_shifter;
+            current_row_value |= pin_state ? 0 : row_shifter;
         }
 
         // Unselect row
         unselect_row(current_row);
-        matrix_output_unselect_delay(current_row, row_state != 0);
+        matrix_output_unselect_delay(current_row, current_row_value != 0);
     }
     // Update the matrix
-    current_matrix[current_row] = row_state;
+    current_matrix[current_row] = current_row_value;
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     static matrix_row_t temp_matrix[MATRIX_ROWS] = {0};
 
-    for (int current_row = 0; current_row < MATRIX_ROWS; current_row++) {
-        matrix_read_cols(temp_matrix, current_row);
+    for (uint8_t current_row = 0; current_row < MATRIX_ROWS; current_row++) {
+        matrix_read_cols_on_row(temp_matrix, current_row);
     }
 
     // Check if we've changed, return the last-read data
