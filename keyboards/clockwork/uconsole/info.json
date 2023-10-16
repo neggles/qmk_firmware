@@ -17,7 +17,6 @@
         "key_override": true,
         "nkro": false,
         "backlight": true,
-        "virtser": true,
         "space_cadet": false,
         "grave_esc": false
     },
