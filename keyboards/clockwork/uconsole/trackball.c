@@ -1,7 +1,9 @@
 // Copyright 2023 Andi Powers-Holmes (@neggles)
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <lib/lib8tion/lib8tion.h>
 #include <hal_pal.h>
 #include <hal_pal_lld.h>
+#include <math.h>
 
 #include "gpio.h"
 #include "trackball.h"
@@ -15,6 +17,8 @@
 #define TB_DN_BIT (1U << 2)
 #define TB_LT_BIT (1U << 3)
 #define TB_PAL_MASK ((1U << 4) - 1U)
+#define TB_ACCEL_F (TRACKBALL_ACCEL_FACTOR / 2.0f)
+#define TB_ACCEL_MAX TRACKBALL_ACCEL_MAX
 
 static const pin_t trackball_dir_pins[4] = TRACKBALL_DIR_PINS;
 
@@ -88,6 +92,11 @@ void trackball_process(void) {
     trackball_dx = 0;
     trackball_dy = 0;
     osalSysUnlock();
+    // Scale the report values by the acceleration factor
+    float magnitude = powf(trackball_state.report.x * trackball_state.report.x + trackball_state.report.y * trackball_state.report.y, TB_ACCEL_F);
+    if (magnitude > TB_ACCEL_MAX) magnitude = TB_ACCEL_MAX;
+    trackball_state.report.x = (mouse_xy_report_t)(trackball_state.report.x * magnitude);
+    trackball_state.report.y = (mouse_xy_report_t)(trackball_state.report.y * magnitude);
 }
 
 // Mode setting functions
